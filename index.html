@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monotonic House Price Predictor</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+        }
+
+        .font-heading {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Ambient Animated Background Gradients */
+        .bg-glow-1 {
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            animation: pulseGlow 8s ease-in-out infinite alternate;
+        }
+
+        .bg-glow-2 {
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+            animation: pulseGlow 10s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0px, 0px); opacity: 0.7; }
+            100% { transform: scale(1.2) translate(20px, -20px); opacity: 1; }
+        }
+
+        /* Entrance Keyframe Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-up {
+            animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Float Animation */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .animate-float {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+
+        /* Shimmer Effect on Button */
+        .btn-shimmer {
+            background-size: 200% 100%;
+            background-image: linear-gradient(110deg, #4f46e5 0%, #6366f1 30%, #818cf8 50%, #6366f1 70%, #4f46e5 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-shimmer:hover {
+            background-position: 100% 0;
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Custom Range Input Styling */
+        input[type=range] {
+            accent-color: #6366f1;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+            transition: transform 0.1s ease;
+        }
+
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+/* Toast Notification Animations */
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes toastOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+.animate-toast-in {
+    animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-toast-out {
+    animation: toastOut 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden relative selection:bg-indigo-500 selection:text-white">
+
+    <div class="fixed top-0 left-1/4 w-[600px] h-[600px] bg-glow-1 pointer-events-none rounded-full blur-3xl"></div>
+    <div class="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-glow-2 pointer-events-none rounded-full blur-3xl"></div>
+
+    <header class="w-full border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-xl sticky top-0 z-50 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-600/20 rounded-xl border border-indigo-500/30 text-indigo-400 animate-float">
+                    <i data-lucide="building-2" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <span class="font-heading font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-indigo-300">
+                        Ames Valuation Engine
+                    </span>
+                    <span class="hidden sm:inline-block ml-2 text-[10px] uppercase font-mono px-2 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full">
+                        v2.4 Pro
+                    </span>
+                </div>
+            </div>
+
+            <nav class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>ONNX Engine Active</span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center py-10 px-4 sm:px-6">
+        <div class="max-w-3xl w-full space-y-8 animate-fade-up">
+            
+            <div class="text-center space-y-3">
+                <h1 class="text-3xl sm:text-5xl font-heading font-extrabold tracking-tight text-white">
+                    Monotonic House Price Predictor
+                </h1>
+                <p class="text-sm sm:text-base text-slate-400 max-w-xl mx-auto font-normal">
+                    Real-time machine learning inference delivering non-decreasing property valuation estimates based on key structural variables.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/60 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden group">
+                
+                <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all duration-500"></div>
+
+                <div class="flex items-center justify-between border-b border-slate-800 pb-5 mb-6">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="sliders-horizontal" class="w-5 h-5 text-indigo-400"></i>
+                        <h2 class="font-heading font-semibold text-slate-200 text-lg">Input Parameters</h2>
+                    </div>
+                    
+                    <button type="button" onclick="resetDefaults()" class="text-xs font-semibold text-slate-400 hover:text-indigo-400 transition-colors flex items-center gap-1.5 bg-slate-800/60 hover:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
+                    </button>
+                </div>
+
+                <form id="estimatorForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                    
+                    <div class="space-y-2 bg-slate-950/30 p-4 rounded-2xl border border-slate-800/50 hover:border-indigo-500/30 transition-all">
+                        <div class="flex justify-between items-center">
+                            <label for="grLivArea" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                Above Grade Living Area
+                                <i data-lucide="help-circle" class="w-4 h-4 text-slate-500 hover:text-indigo-400 transition-colors cursor-pointer" title="Total finished ground-level & upper living area in square feet."></i>
+                            </label>
+                            <span class="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                                Sq Ft
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-4 items-center pt-1">
+                            <input type="range" min="300" max="10000" value="1500" class="col-span-8 sm:col-span-9 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer" oninput="syncInputs('grLivArea', this.value)">
+                            <input type="number" id="grLivArea" value="1500" min="300" max="10000" class="col-span-4 sm:col-span-3 bg-slate-900 border border-slate-700 text-slate-100 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 transition" oninput="syncInputs('grLivArea', this.value)">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 bg-slate-950/30 p-4 rounded-2xl border border-slate-800/50 hover:border-indigo-500/30 transition-all">
+                        <div class="flex justify-between items-center">
+                            <label for="overallQual" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                Overall Quality Rating
+                                <i data-lucide="help-circle" class="w-4 h-4 text-slate-500 hover:text-indigo-400 transition-colors cursor-pointer" title="Rates material finish and structure on a 1-10 scale."></i>
+                            </label>
+                            <span class="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                                Grade 1 - 10
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-4 items-center pt-1">
+                            <input type="range" min="1" max="10" value="6" class="col-span-8 sm:col-span-9 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer" oninput="syncInputs('overallQual', this.value)">
+                            <input type="number" id="overallQual" value="6" min="1" max="10" class="col-span-4 sm:col-span-3 bg-slate-900 border border-slate-700 text-slate-100 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 transition" oninput="syncInputs('overallQual', this.value)">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 bg-slate-950/30 p-4 rounded-2xl border border-slate-800/50 hover:border-indigo-500/30 transition-all">
+                        <div class="flex justify-between items-center">
+                            <label for="totalBsmtSF" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                Total Basement Area
+                                <i data-lucide="help-circle" class="w-4 h-4 text-slate-500 hover:text-indigo-400 transition-colors cursor-pointer" title="Total square footage of basement area."></i>
+                            </label>
+                            <span class="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                                Sq Ft
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-12 gap-4 items-center pt-1">
+                            <input type="range" min="0" max="5000" value="800" class="col-span-8 sm:col-span-9 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer" oninput="syncInputs('totalBsmtSF', this.value)">
+                            <input type="number" id="totalBsmtSF" value="800" min="0" max="5000" class="col-span-4 sm:col-span-3 bg-slate-900 border border-slate-700 text-slate-100 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 transition" oninput="syncInputs('totalBsmtSF', this.value)">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        
+                        <div class="bg-slate-950/30 p-4 rounded-2xl border border-slate-800/50 hover:border-indigo-500/30 transition-all space-y-2">
+                            <label for="garageCars" class="text-sm font-medium text-slate-300 flex items-center justify-between">
+                                Garage Size
+                                <span class="text-xs text-slate-400">Car Capacity</span>
+                            </label>
+                            <input type="number" id="garageCars" value="2" min="0" max="5" class="bg-slate-900 border border-slate-700 text-slate-100 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 transition">
+                        </div>
+
+                        <div class="bg-slate-950/30 p-4 rounded-2xl border border-slate-800/50 hover:border-indigo-500/30 transition-all space-y-2">
+                            <label for="fullBath" class="text-sm font-medium text-slate-300 flex items-center justify-between">
+                                Full Bathrooms
+                                <span class="text-xs text-slate-400">Total Count</span>
+                            </label>
+                            <input type="number" id="fullBath" value="2" min="0" max="5" class="bg-slate-900 border border-slate-700 text-slate-100 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 transition">
+                        </div>
+
+                    </div>
+
+                    <button type="submit" id="calculateBtn" class="btn-shimmer w-full py-4 px-6 text-white font-bold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 active:scale-[0.99] cursor-pointer">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        <span class="tracking-wide">Calculate Estimate</span>
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-2">
+                    <div class="relative bg-slate-950/80 border border-indigo-500/30 rounded-2xl p-6 text-center shadow-2xl overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/10 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <span class="text-xs uppercase tracking-widest font-bold text-indigo-400 block mb-2">
+                            Estimated Property Value
+                        </span>
+                        
+                        <div id="result" class="font-heading text-3xl sm:text-5xl font-extrabold text-white tracking-tight flex items-center justify-center gap-2">
+                            Prediction: $0.00
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full border-t border-slate-800/80 bg-slate-950/80 backdrop-blur-lg py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+                <i data-lucide="cpu" class="w-4 h-4 text-indigo-400"></i>
+                <span>Monotonic Machine Learning Architecture</span>
+            </div>
+            
+            <div>
+                <span>Ames Real Estate Predictive Model &bull; Web Assembly Inference</span>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <a href="#" class="hover:text-slate-300 transition-colors">Documentation</a>
+                <a href="#" class="hover:text-slate-300 transition-colors">API</a>
+                <a href="#" class="hover:text-slate-300 transition-colors">Privacy</a>
+            </div>
+        </div>
+    </footer>
+<div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none max-w-sm sm:max-w-md w-full px-4"></div>
+    <script>
+        // Render Icons
+        lucide.createIcons();
+
+        // Synchronize range sliders and number inputs
+        function syncInputs(id, value) {
+            const numInput = document.getElementById(id);
+            if (!numInput) return;
+            const rangeInput = numInput.previousElementSibling;
+            
+            numInput.value = value;
+            if (rangeInput && rangeInput.type === 'range') {
+                rangeInput.value = value;
+            }
+        }
+
+        // Reset to initial baseline inputs
+        function resetDefaults() {
+            const defaults = {
+                grLivArea: 1500,
+                overallQual: 6,
+                totalBsmtSF: 800,
+                garageCars: 2,
+                fullBath: 2
+            };
+
+            for (const [id, val] of Object.entries(defaults)) {
+                syncInputs(id, val);
+            }
+        }
+
+        // Handle Form Submit with visual feedback
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('calculateBtn');
+            const originalHTML = btn.innerHTML;
+            
+            // Temporary Spinner Animation
+            btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Computing Model...</span>`;
+            
+            setTimeout(() => {
+                if (typeof predictPrice === 'function') {
+                    predictPrice();
+                }
+                btn.innerHTML = originalHTML;
+                lucide.createIcons();
+            }, 300);
+        }
+		// Override native browser window.alert
+window.alert = function (message) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    // Create Toast Box
+    const toast = document.createElement('div');
+    toast.className = 'pointer-events-auto flex items-center gap-3 bg-slate-900/95 text-slate-100 border border-indigo-500/40 shadow-2xl rounded-2xl p-4 animate-toast-in backdrop-blur-xl border-l-4 border-l-amber-400';
+
+    // Insert alert content (Icon, Message, and Close button)
+    toast.innerHTML = `
+        <div class="p-2 bg-amber-500/10 rounded-xl text-amber-400 border border-amber-500/20 shrink-0">
+            <i data-lucide="alert-circle" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-grow text-xs sm:text-sm font-medium pr-2 text-slate-200 leading-snug">
+            ${message}
+        </div>
+        <button onclick="dismissToast(this.parentElement)" class="text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-800 shrink-0">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    `;
+
+    // Append to container and render Lucide icons
+    container.appendChild(toast);
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+
+    // Auto-dismiss toast after 4 seconds
+    setTimeout(() => {
+        dismissToast(toast);
+    }, 4000);
+};
+
+// Helper function to animate out and remove toast
+function dismissToast(toast) {
+    if (!toast || toast.dataset.dismissing) return;
+    toast.dataset.dismissing = "true";
+    toast.classList.remove('animate-toast-in');
+    toast.classList.add('animate-toast-out');
+    
+    toast.addEventListener('animationend', () => {
+        toast.remove();
+    });
+}
+    </script>
+
+    <script src="app.js"></script>
+</body>
+</html>
