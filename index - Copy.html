@@ -1,0 +1,735 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monotonic House Price Predictor</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+<style>
+    /* Premium Light + Soft Pastel Palette */
+    body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: #ffffff;
+        color: #1e293b;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .font-heading {
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* =========================================================
+       SOFT PASTEL BACKGROUND PATCHES
+       Small localized patches — NOT a full-page gradient
+       ========================================================= */
+
+    .bg-glow-1 {
+        position: fixed;
+        width: 320px;
+        height: 260px;
+        top: 8%;
+        left: -90px;
+        border-radius: 50%;
+        background: radial-gradient(
+            circle,
+            rgba(251, 207, 232, 0.45) 0%,
+            rgba(251, 207, 232, 0.18) 38%,
+            transparent 72%
+        );
+        pointer-events: none;
+        z-index: -1;
+        animation: subtleFloat1 14s ease-in-out infinite alternate;
+    }
+
+    .bg-glow-2 {
+        position: fixed;
+        width: 300px;
+        height: 240px;
+        top: 32%;
+        right: -100px;
+        border-radius: 50%;
+        background: radial-gradient(
+            circle,
+            rgba(191, 219, 254, 0.45) 0%,
+            rgba(191, 219, 254, 0.18) 40%,
+            transparent 72%
+        );
+        pointer-events: none;
+        z-index: -1;
+        animation: subtleFloat2 16s ease-in-out infinite alternate;
+    }
+
+    .bg-glow-3 {
+        position: fixed;
+        width: 280px;
+        height: 220px;
+        bottom: 12%;
+        left: 12%;
+        border-radius: 50%;
+        background: radial-gradient(
+            circle,
+            rgba(254, 240, 138, 0.32) 0%,
+            rgba(254, 240, 138, 0.12) 40%,
+            transparent 72%
+        );
+        pointer-events: none;
+        z-index: -1;
+        animation: subtleFloat3 18s ease-in-out infinite alternate;
+    }
+
+    .bg-glow-4 {
+        position: fixed;
+        width: 300px;
+        height: 240px;
+        bottom: -40px;
+        right: 12%;
+        border-radius: 50%;
+        background: radial-gradient(
+            circle,
+            rgba(221, 214, 254, 0.42) 0%,
+            rgba(221, 214, 254, 0.16) 42%,
+            transparent 72%
+        );
+        pointer-events: none;
+        z-index: -1;
+        animation: subtleFloat4 15s ease-in-out infinite alternate;
+    }
+
+    @keyframes subtleFloat1 {
+        from {
+            transform: translate(0, 0) scale(1);
+        }
+        to {
+            transform: translate(18px, -12px) scale(1.05);
+        }
+    }
+
+    @keyframes subtleFloat2 {
+        from {
+            transform: translate(0, 0) scale(1);
+        }
+        to {
+            transform: translate(-15px, 15px) scale(1.06);
+        }
+    }
+
+    @keyframes subtleFloat3 {
+        from {
+            transform: translate(0, 0) scale(1);
+        }
+        to {
+            transform: translate(12px, -10px) scale(1.04);
+        }
+    }
+
+    @keyframes subtleFloat4 {
+        from {
+            transform: translate(0, 0) scale(1);
+        }
+        to {
+            transform: translate(-12px, -14px) scale(1.05);
+        }
+    }
+
+    /* =========================================================
+       PAGE ENTRANCE
+       ========================================================= */
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-up {
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* =========================================================
+       HEADER ICON
+       ========================================================= */
+
+    @keyframes floatSlow {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-4px);
+        }
+    }
+
+    .animate-float {
+        animation: floatSlow 4s ease-in-out infinite;
+    }
+
+    /* =========================================================
+       PREMIUM PASTEL BUTTON
+       ========================================================= */
+
+    .btn-shimmer {
+        position: relative;
+        background: linear-gradient(
+            135deg,
+            #a78bfa 0%,
+            #93c5fd 50%,
+            #f9a8d4 100%
+        );
+        color: #ffffff;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow:
+            0 6px 20px rgba(147, 197, 253, 0.22),
+            0 3px 10px rgba(167, 139, 250, 0.12);
+        transition:
+            transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+            box-shadow 0.2s ease,
+            filter 0.2s ease;
+    }
+
+    .btn-shimmer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.5) 50%,
+            transparent 100%
+        );
+        transform: skewX(-25deg);
+        transition: left 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-shimmer:hover::before {
+        left: 150%;
+    }
+
+    .btn-shimmer:hover {
+        filter: brightness(1.03);
+        transform: translateY(-2px);
+        box-shadow:
+            0 10px 28px rgba(147, 197, 253, 0.28),
+            0 5px 14px rgba(167, 139, 250, 0.18);
+    }
+
+    .btn-shimmer:active {
+        transform: translateY(0);
+    }
+
+    /* =========================================================
+       MODERN LIGHT RANGE INPUT
+       ========================================================= */
+
+    input[type=range] {
+        -webkit-appearance: none;
+        appearance: none;
+        background: #e2e8f0;
+        border-radius: 9999px;
+        height: 6px;
+        outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #93c5fd;
+        border: 3px solid #ffffff;
+        box-shadow: 0 2px 8px rgba(96, 165, 250, 0.28);
+        cursor: pointer;
+        transition:
+            transform 0.15s ease,
+            background-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    input[type=range]::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+        background: #818cf8;
+        box-shadow: 0 3px 12px rgba(129, 140, 248, 0.3);
+    }
+
+    input[type=range]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #93c5fd;
+        border: 3px solid #ffffff;
+        box-shadow: 0 2px 8px rgba(96, 165, 250, 0.28);
+        cursor: pointer;
+        transition:
+            transform 0.15s ease,
+            background-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    input[type=range]::-moz-range-thumb:hover {
+        transform: scale(1.2);
+        background: #818cf8;
+    }
+
+    /* =========================================================
+       LIGHT INPUT / CARD BLOCKS
+       ========================================================= */
+
+    .space-y-2.bg-slate-950\/30 {
+        background: rgba(255, 255, 255, 0.82);
+        border-color: rgba(226, 232, 240, 0.9);
+        box-shadow: 0 2px 12px rgba(148, 163, 184, 0.06);
+        transition:
+            border-color 0.25s ease,
+            background-color 0.25s ease,
+            box-shadow 0.25s ease,
+            transform 0.25s ease;
+    }
+
+    .space-y-2.bg-slate-950\/30:hover {
+        background: rgba(255, 255, 255, 0.96);
+        border-color: rgba(191, 219, 254, 0.9);
+        box-shadow:
+            0 6px 20px rgba(148, 163, 184, 0.1),
+            0 2px 8px rgba(191, 219, 254, 0.08);
+        transform: translateY(-1px);
+    }
+
+    /* =========================================================
+       SOFT GLASS / WHITE CARDS
+       ========================================================= */
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        box-shadow:
+            0 10px 35px rgba(148, 163, 184, 0.08),
+            0 2px 8px rgba(148, 163, 184, 0.04);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* =========================================================
+       TOAST NOTIFICATIONS
+       ========================================================= */
+
+    @keyframes toastIn {
+        from {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes toastOut {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+    }
+
+    .animate-toast-in {
+        animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-toast-out {
+        animation: toastOut 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* =========================================================
+       LIGHT TEXT COLORS
+       ========================================================= */
+
+    .text-slate-50 {
+        color: #1e293b !important;
+    }
+
+    .text-slate-100 {
+        color: #334155 !important;
+    }
+
+    .text-slate-600 {
+        color: #475569 !important;
+    }
+
+    .text-slate-300 {
+        color: #64748b !important;
+    }
+
+    .text-slate-400 {
+        color: #94a3b8 !important;
+    }
+
+    /* =========================================================
+       SOFT PASTEL ACCENT UTILITIES
+       ========================================================= */
+
+    .pastel-pink {
+        background: linear-gradient(
+            135deg,
+            rgba(251, 207, 232, 0.75),
+            rgba(255, 255, 255, 0.8)
+        );
+    }
+
+    .pastel-blue {
+        background: linear-gradient(
+            135deg,
+            rgba(191, 219, 254, 0.75),
+            rgba(255, 255, 255, 0.8)
+        );
+    }
+
+    .pastel-yellow {
+        background: linear-gradient(
+            135deg,
+            rgba(254, 240, 138, 0.65),
+            rgba(255, 255, 255, 0.8)
+        );
+    }
+
+    .pastel-purple {
+        background: linear-gradient(
+            135deg,
+            rgba(221, 214, 254, 0.75),
+            rgba(255, 255, 255, 0.8)
+        );
+    }
+</style>
+</head>
+<body class="text-slate-700 min-h-screen flex flex-col justify-between overflow-x-hidden relative bg-white selection:bg-indigo-100 selection:text-indigo-900">
+
+<div class="bg-glow-1"></div>
+<div class="bg-glow-2"></div>
+<div class="bg-glow-3"></div>
+<div class="bg-glow-4"></div>
+
+<header class="w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-xl sticky top-0 z-50 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+
+        <div class="flex items-center gap-3">
+            <div class="p-2 bg-indigo-50 rounded-xl border border-indigo-100 text-indigo-500 animate-float">
+                <i data-lucide="building-2" class="w-5 h-5"></i>
+            </div>
+
+            <div>
+                <span class="font-heading font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-800 via-slate-600 to-indigo-500">
+                    Ames Valuation Engine
+                </span>
+
+                <span class="hidden sm:inline-block ml-2 text-[10px] uppercase font-mono px-2 py-0.5 bg-indigo-50 text-indigo-500 border border-indigo-100 rounded-full">
+                    v2.4 Pro
+                </span>
+            </div>
+        </div>
+
+        <nav class="flex items-center gap-4">
+            <div class="flex items-center gap-2 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>ONNX Engine Active</span>
+            </div>
+        </nav>
+
+    </div>
+</header>
+<main class="flex-grow flex items-center justify-center py-10 px-4 sm:px-6">
+    <div class="max-w-3xl w-full space-y-8 animate-fade-up">
+        
+        <div class="text-center space-y-3">
+            <h1 class="text-3xl sm:text-5xl font-heading font-extrabold tracking-tight text-slate-800">
+                Monotonic House Price Predictor
+            </h1>
+            <p class="text-sm sm:text-base text-slate-400 max-w-xl mx-auto font-normal">
+                Real-time machine learning inference delivering non-decreasing property valuation estimates based on key structural variables.
+            </p>
+        </div>
+
+        <div class="bg-white/90 backdrop-blur-xl border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-[0_20px_60px_-20px_rgba(148,163,184,0.25)] relative overflow-hidden group">
+
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-100/60 rounded-full blur-2xl group-hover:bg-purple-200/60 transition-all duration-500"></div>
+
+            <div class="flex items-center justify-between border-b border-slate-800 pb-5 mb-6">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sliders-horizontal" class="w-5 h-5 text-indigo-500"></i>
+<h2 class="font-heading font-semibold text-slate-700 text-lg">Input Parameters</h2>
+                </div>
+                
+                <button type="button" onclick="resetDefaults()" class="text-xs font-semibold text-slate-500 hover:text-indigo-500 transition-colors flex items-center gap-1.5 bg-slate-50 hover:bg-indigo-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                    <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
+                </button>
+            </div>
+
+            <form id="estimatorForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                
+                <div class="space-y-2 bg-slate-950/30 p-4 rounded-2xl border border-slate-800/50 hover:border-indigo-500/30 transition-all">
+                    <div class="flex justify-between items-center">
+                        <label for="grLivArea" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                            Above Grade Living Area
+                            <i data-lucide="help-circle" class="w-4 h-4 text-slate-500 hover:text-indigo-400 transition-colors cursor-pointer" title="Total finished ground-level & upper living area in square feet."></i>
+                        </label>
+                        <span class="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                            Sq Ft
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-12 gap-4 items-center pt-1">
+                        <input type="range" min="300" max="10000" value="1500" class="col-span-8 sm:col-span-9 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer" oninput="syncInputs('grLivArea', this.value)">
+                        <input type="number" id="grLivArea" value="1500" min="300" max="10000" class="col-span-4 sm:col-span-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 transition" oninput="syncInputs('grLivArea', this.value)">
+                    </div>
+                </div>
+
+                <div class="space-y-2 bg-slate-950/30 p-4 rounded-2xl border border-slate-800/50 hover:border-indigo-500/30 transition-all">
+                    <div class="flex justify-between items-center">
+                        <label for="overallQual" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                            Overall Quality Rating
+                            <i data-lucide="help-circle" class="w-4 h-4 text-slate-500 hover:text-indigo-400 transition-colors cursor-pointer" title="Rates material finish and structure on a 1-10 scale."></i>
+                        </label>
+                        <span class="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                            Grade 1 - 10
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-12 gap-4 items-center pt-1">
+                        <input type="range" min="1" max="10" value="6" class="col-span-8 sm:col-span-9 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer" oninput="syncInputs('overallQual', this.value)">
+                        <input type="number" id="overallQual" value="6" min="1" max="10" class="col-span-4 sm:col-span-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 transition" oninput="syncInputs('overallQual', this.value)">
+                    </div>
+                </div>
+
+                <div class="space-y-2 bg-slate-950/30 p-4 rounded-2xl border border-slate-800/50 hover:border-indigo-500/30 transition-all">
+                    <div class="flex justify-between items-center">
+                        <label for="totalBsmtSF" class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                            Total Basement Area
+                            <i data-lucide="help-circle" class="w-4 h-4 text-slate-500 hover:text-indigo-400 transition-colors cursor-pointer" title="Total square footage of basement area."></i>
+                        </label>
+                        <span class="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                            Sq Ft
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-12 gap-4 items-center pt-1">
+                        <input type="range" min="0" max="5000" value="800" class="col-span-8 sm:col-span-9 h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer" oninput="syncInputs('totalBsmtSF', this.value)">
+                        <input type="number" id="totalBsmtSF" value="800" min="0" max="5000" class="col-span-4 sm:col-span-3 bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 transition" oninput="syncInputs('totalBsmtSF', this.value)">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    
+                    <div class="bg-slate-950/30 p-4 rounded-2xl border border-slate-800/50 hover:border-indigo-500/30 transition-all space-y-2">
+                        <label for="garageCars" class="text-sm font-medium text-slate-300 flex items-center justify-between">
+                            Garage Size
+                            <span class="text-xs text-slate-400">Car Capacity</span>
+                        </label>
+                        <input type="number" id="garageCars" value="2" min="0" max="5" class="bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 transition">
+                    </div>
+
+                    <div class="bg-slate-950/30 p-4 rounded-2xl border border-slate-800/50 hover:border-indigo-500/30 transition-all space-y-2">
+                        <label for="fullBath" class="text-sm font-medium text-slate-300 flex items-center justify-between">
+                            Full Bathrooms
+                            <span class="text-xs text-slate-400">Total Count</span>
+                        </label>
+                        <input type="number" id="fullBath" value="2" min="0" max="5" class="bg-white border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full p-2.5 transition">
+                    </div>
+
+                </div>
+<div class="relative overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/60 via-purple-50/40 to-white p-6 transition-all duration-300 hover:border-indigo-200 hover:shadow-md">
+    <div class="flex flex-col items-center justify-center space-y-3 text-center">
+        <!-- Badge Icon -->
+        <div class="flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-100 bg-white shadow-sm text-indigo-500">
+            <i data-lucide="hard-drive" class="w-6 h-6"></i>
+        </div>
+
+        <!-- Text Content -->
+        <div>
+            <h3 class="font-heading text-base font-bold text-slate-800">Target Machine Learning System</h3>
+            <p class="mt-1 text-xs text-slate-500 max-w-sm">
+                Select your <code class="rounded bg-indigo-100/60 px-1.5 py-0.5 text-indigo-600 font-mono">model.onnx</code> file to enable offline inference:
+            </p>
+        </div>
+
+        <!-- Styled File Input Button -->
+        <label for="model-selector" class="mt-2 flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-5 py-2.5 text-xs font-semibold text-indigo-600 shadow-sm transition-all hover:bg-indigo-50 hover:border-indigo-300 active:scale-95 cursor-pointer">
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+            <span id="file-label-text">Select Model File</span>
+            <input type="file" id="model-selector" accept=".onnx" class="hidden" onchange="updateFileName(this)">
+        </label>
+    </div>
+</div>
+                <button type="submit" id="calculateBtn" class="btn-shimmer w-full py-4 px-6 text-white font-bold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 active:scale-[0.99] cursor-pointer">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    <span class="tracking-wide">Calculate Estimate</span>
+                </button>
+            </form>
+
+            <div class="mt-8 pt-2">
+<div class="relative bg-gradient-to-br from-white via-purple-50/40 to-blue-50/40 border border-indigo-100 rounded-2xl p-6 text-center shadow-lg overflow-hidden group transition-all duration-300 hover:border-indigo-200">
+    <div class="absolute inset-0 bg-gradient-to-r from-pink-100/20 via-yellow-100/20 to-blue-100/20 opacity-60 group-hover:opacity-100 transition-opacity"></div>
+    
+    <span class="text-xs uppercase tracking-widest font-semibold text-indigo-500 block mb-2 relative z-10">
+        Estimated Property Value
+    </span>
+    
+    <div id="result" class="font-heading text-3xl sm:text-5xl font-extrabold text-slate-800 tracking-tight flex items-center justify-center gap-2 relative z-10">
+        Prediction: $0.00
+    </div>
+</div>	            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer class="w-full border-t border-slate-200/80 bg-white/80 backdrop-blur-lg py-6 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div class="flex items-center gap-2">
+            <i data-lucide="cpu" class="w-4 h-4 text-indigo-400"></i>
+            <span>Monotonic Machine Learning Architecture</span>
+        </div>
+        
+        <div>
+            <span>Ames Real Estate Predictive Model &bull; Web Assembly Inference</span>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <a href="#" class="hover:text-slate-300 transition-colors">Documentation</a>
+            <a href="#" class="hover:text-slate-300 transition-colors">API</a>
+            <a href="#" class="hover:text-slate-300 transition-colors">Privacy</a>
+        </div>
+    </div>
+</footer>
+
+<div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none max-w-sm sm:max-w-md w-full px-4"></div>
+    <script>
+        // Render Icons
+        lucide.createIcons();
+
+    // Synchronize range sliders and number inputs
+    function syncInputs(id, value) {
+        const numInput = document.getElementById(id);
+        if (!numInput) return;
+        const rangeInput = numInput.previousElementSibling;
+        
+        numInput.value = value;
+        if (rangeInput && rangeInput.type === 'range') {
+            rangeInput.value = value;
+        }
+    }
+
+    // Reset to initial baseline inputs
+    function resetDefaults() {
+        const defaults = {
+            grLivArea: 1500,
+            overallQual: 6,
+            totalBsmtSF: 800,
+            garageCars: 2,
+            fullBath: 2
+        };
+
+        for (const [id, val] of Object.entries(defaults)) {
+            syncInputs(id, val);
+        }
+    }
+
+    // Handle Form Submit with visual feedback
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        const btn = document.getElementById('calculateBtn');
+        const originalHTML = btn.innerHTML;
+        
+        // Temporary Spinner Animation
+        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span>Computing Model...</span>`;
+        
+        setTimeout(() => {
+            if (typeof predictPrice === 'function') {
+                predictPrice();
+            }
+            btn.innerHTML = originalHTML;
+            lucide.createIcons();
+        }, 300);
+    }
+	// Override native browser window.alert
+
+window.alert = function (message) {
+const container = document.getElementById('toast-container');
+if (!container) return;
+
+// Create Toast Box
+const toast = document.createElement('div');
+toast.className = 'pointer-events-auto flex items-center gap-3 bg-white/95 text-slate-700 border border-indigo-100 shadow-xl rounded-2xl p-4 animate-toast-in backdrop-blur-xl border-l-4 border-l-amber-400';
+
+// Insert alert content (Icon, Message, and Close button)
+toast.innerHTML = `
+    <div class="p-2 bg-amber-50 rounded-xl text-amber-500 border border-amber-100 shrink-0">
+        <i data-lucide="alert-circle" class="w-5 h-5"></i>
+    </div>
+    <div class="flex-grow text-xs sm:text-sm font-medium pr-2 text-slate-600 leading-snug">
+        ${message}
+    </div>
+    <button onclick="dismissToast(this.parentElement)" class="text-slate-400 hover:text-slate-700 transition-colors p-1 rounded-lg hover:bg-slate-800 shrink-0">
+        <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+`;
+
+// Append to container and render Lucide icons
+container.appendChild(toast);
+if (window.lucide) {
+    lucide.createIcons();
+}
+
+// Auto-dismiss toast after 4 seconds
+setTimeout(() => {
+    dismissToast(toast);
+}, 4000);
+
+};
+
+// Helper function to animate out and remove toast
+function dismissToast(toast) {
+if (!toast || toast.dataset.dismissing) return;
+toast.dataset.dismissing = "true";
+toast.classList.remove('animate-toast-in');
+toast.classList.add('animate-toast-out');
+
+toast.addEventListener('animationend', () => {
+    toast.remove();
+});
+
+}
+// Helper function to show selected file name on button
+function updateFileName(input) {
+    const labelText = document.getElementById('file-label-text');
+    if (input.files && input.files[0]) {
+        labelText.textContent = `Loaded: ${input.files[0].name}`;
+    }
+}
+</script>
+
+<script src="app.js"></script>
+
+</body>
+</html>

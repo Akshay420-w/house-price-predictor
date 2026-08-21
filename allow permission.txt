@@ -1,0 +1,637 @@
+allow permission:
+
+Win + R
+
+chrome.exe --allow-file-access-from-files "C:\Users\DELL\OneDrive\Desktop\house-price-predictor\index.html"
+
+============================================================
+OFFLINE SCHOOL WEBSITE — LOCAL SERVER TROUBLESHOOTING
+============================================================
+
+IMPORTANT:
+- Do NOT close CMD after a server successfully starts.
+- A successful server normally stays on the screen.
+- If CMD immediately returns to C:\...>, move to the next step.
+- In Edge, use http://127.0.0.1:PORT or http://localhost:PORT
+- Do NOT change Windows proxy settings.
+
+------------------------------------------------------------
+1. CHECK PYTHON
+------------------------------------------------------------
+
+Run:
+
+python --version
+
+If a Python version appears:
+→ Go to Step 2.
+
+If it says Python is not recognized:
+→ Go to Step 3.
+
+
+------------------------------------------------------------
+2. START SERVER NORMALLY
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 8000
+
+If CMD stays open and shows something like:
+"Serving HTTP on..."
+
+→ SUCCESS.
+Open Edge:
+http://127.0.0.1:8000
+
+If CMD immediately returns to the prompt:
+→ Step 4.
+
+
+------------------------------------------------------------
+3. TRY PY LAUNCHER
+------------------------------------------------------------
+
+Run:
+
+py --version
+
+If a Python version appears:
+
+py -m http.server 8000
+
+If it stays running:
+→ SUCCESS.
+Open:
+http://127.0.0.1:8000
+
+Otherwise:
+→ Step 4.
+
+
+------------------------------------------------------------
+4. USE PY LAUNCHER WITH ANOTHER PORT
+------------------------------------------------------------
+
+Run:
+
+py -m http.server 8080
+
+If successful:
+Open:
+http://127.0.0.1:8080
+
+Otherwise:
+→ Step 5.
+
+
+------------------------------------------------------------
+5. USE PYTHON WITH ANOTHER PORT
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 8080
+
+If successful:
+Open:
+http://127.0.0.1:8080
+
+Otherwise:
+→ Step 6.
+
+
+------------------------------------------------------------
+6. TRY PORT 8765
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 8765
+
+If successful:
+Open:
+http://127.0.0.1:8765
+
+Otherwise:
+→ Step 7.
+
+
+------------------------------------------------------------
+7. TRY PORT 5000
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 5000
+
+If successful:
+Open:
+http://127.0.0.1:5000
+
+Otherwise:
+→ Step 8.
+
+
+------------------------------------------------------------
+8. EXPLICITLY BIND TO LOCALHOST
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 8000 --bind 127.0.0.1
+
+If successful:
+Open:
+http://127.0.0.1:8000
+
+Otherwise:
+→ Step 9.
+
+
+------------------------------------------------------------
+9. BIND LOCALHOST USING PY
+------------------------------------------------------------
+
+Run:
+
+py -m http.server 8000 --bind 127.0.0.1
+
+If successful:
+Open:
+http://127.0.0.1:8000
+
+Otherwise:
+→ Step 10.
+
+
+------------------------------------------------------------
+10. TRY PORT 8080 WITH EXPLICIT BIND
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 8080 --bind 127.0.0.1
+
+If successful:
+Open:
+http://127.0.0.1:8080
+
+Otherwise:
+→ Step 11.
+
+
+------------------------------------------------------------
+11. CHECK WHERE PYTHON IS INSTALLED
+------------------------------------------------------------
+
+Run:
+
+where python
+
+If a path appears:
+→ Python exists.
+Continue to Step 12.
+
+If nothing appears:
+→ Continue to Step 14.
+
+
+------------------------------------------------------------
+12. CHECK PY LAUNCHER LOCATION
+------------------------------------------------------------
+
+Run:
+
+where py
+
+If a path appears:
+→ Continue to Step 13.
+
+Otherwise:
+→ Continue to Step 14.
+
+
+------------------------------------------------------------
+13. RUN PYTHON USING ITS FULL PATH
+------------------------------------------------------------
+
+If Step 11 gave something like:
+
+C:\...\python.exe
+
+Run:
+
+"C:\...\python.exe" -m http.server 8000
+
+IMPORTANT:
+Replace C:\...\python.exe with the EXACT path shown by Step 11.
+
+If successful:
+→ Open:
+http://127.0.0.1:8000
+
+Otherwise:
+→ Step 14.
+
+
+------------------------------------------------------------
+14. TRY python3
+------------------------------------------------------------
+
+Run:
+
+python3 --version
+
+If it works:
+
+python3 -m http.server 8000
+
+If successful:
+→ Open:
+http://127.0.0.1:8000
+
+Otherwise:
+→ Step 15.
+
+
+------------------------------------------------------------
+15. CHANGE TO THE WEBSITE FOLDER AGAIN
+------------------------------------------------------------
+
+Run:
+
+cd /d "YOUR WEBSITE FOLDER"
+
+Example:
+
+cd /d "C:\Users\Student\Desktop\ML Website"
+
+Then:
+
+python -m http.server 8000
+
+If successful:
+→ Open:
+http://127.0.0.1:8000
+
+Otherwise:
+→ Step 16.
+
+
+------------------------------------------------------------
+16. USE THE PY LAUNCHER AFTER CD
+------------------------------------------------------------
+
+Make sure you are inside your website folder.
+
+Run:
+
+py -m http.server 8000
+
+If successful:
+→ Open:
+http://127.0.0.1:8000
+
+Otherwise:
+→ Step 17.
+
+
+------------------------------------------------------------
+17. TRY A DIFFERENT PORT AFTER CD
+------------------------------------------------------------
+
+Run:
+
+py -m http.server 8080
+
+If successful:
+→ Open:
+http://127.0.0.1:8080
+
+Otherwise:
+→ Step 18.
+
+
+------------------------------------------------------------
+18. TRY HIGH PORT 9000
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 9000
+
+If successful:
+→ Open:
+http://127.0.0.1:9000
+
+Otherwise:
+→ Step 19.
+
+
+------------------------------------------------------------
+19. TRY HIGH PORT 3000
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 3000
+
+If successful:
+→ Open:
+http://127.0.0.1:3000
+
+Otherwise:
+→ Step 20.
+
+
+------------------------------------------------------------
+20. TRY LOCALHOST INSTEAD OF 127.0.0.1
+------------------------------------------------------------
+
+If the server is running on port 8000:
+
+Open Edge:
+
+http://localhost:8000
+
+If it doesn't work:
+try:
+
+http://localhost:8080
+
+If it doesn't work:
+→ Step 21.
+
+
+------------------------------------------------------------
+21. TRY 127.0.0.1 WITH THE PORT THAT WORKED
+------------------------------------------------------------
+
+If you successfully started a server on a particular port,
+use:
+
+http://127.0.0.1:PORT
+
+Example:
+
+http://127.0.0.1:8765
+
+If it doesn't load:
+→ Step 22.
+
+
+------------------------------------------------------------
+22. TRY IPv4 BINDING ON PORT 8080
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 8080 --bind 0.0.0.0
+
+Then open:
+
+http://127.0.0.1:8080
+
+If successful:
+→ DONE.
+
+Otherwise:
+→ Step 23.
+
+
+------------------------------------------------------------
+23. TRY IPv4 BINDING ON PORT 8000
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 8000 --bind 0.0.0.0
+
+Then open:
+
+http://127.0.0.1:8000
+
+If successful:
+→ DONE.
+
+Otherwise:
+→ Step 24.
+
+
+------------------------------------------------------------
+24. TRY THE SERVER WITH PY + 0.0.0.0
+------------------------------------------------------------
+
+Run:
+
+py -m http.server 8000 --bind 0.0.0.0
+
+Then:
+
+http://127.0.0.1:8000
+
+If successful:
+→ DONE.
+
+Otherwise:
+→ Step 25.
+
+
+------------------------------------------------------------
+25. CHECK WHETHER PORT 8000 IS ALREADY USED
+------------------------------------------------------------
+
+Run:
+
+netstat -ano | findstr :8000
+
+If something appears:
+→ Port 8000 is already being used.
+
+Try:
+
+python -m http.server 8888
+
+Then:
+
+http://127.0.0.1:8888
+
+If nothing appears:
+→ Continue to Step 26.
+
+
+------------------------------------------------------------
+26. CHECK PORT 8080
+------------------------------------------------------------
+
+Run:
+
+netstat -ano | findstr :8080
+
+If something appears:
+→ Try another port:
+
+python -m http.server 8888
+
+Then:
+
+http://127.0.0.1:8888
+
+If nothing appears:
+→ Step 27.
+
+
+------------------------------------------------------------
+27. USE A RANDOM HIGH PORT
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 49152
+
+Then open:
+
+http://127.0.0.1:49152
+
+If successful:
+→ DONE.
+
+Otherwise:
+→ Step 28.
+
+
+------------------------------------------------------------
+28. TEST WHETHER PYTHON CAN SERVE ANYTHING AT ALL
+------------------------------------------------------------
+
+Create/open a simple folder.
+
+Inside it, create:
+
+test.html
+
+Put this inside:
+
+<html>
+<body>
+<h1>SERVER TEST</h1>
+</body>
+</html>
+
+Then from that folder run:
+
+python -m http.server 8000
+
+Open:
+
+http://127.0.0.1:8000/test.html
+
+If this works:
+→ Python server works.
+→ The problem is probably your website/project.
+
+If this does NOT work:
+→ Step 29.
+
+
+------------------------------------------------------------
+29. CHECK WHETHER PYTHON COMMAND IS ACTUALLY EXITING
+------------------------------------------------------------
+
+Run:
+
+python -m http.server 8000
+
+Immediately after it returns to the prompt, run:
+
+echo %errorlevel%
+
+If it shows:
+
+0
+
+the command exited without a reported error.
+
+If it shows another number:
+→ Python reported an error condition.
+
+Then try:
+
+py -m http.server 8000
+
+If successful:
+→ DONE.
+
+Otherwise:
+→ Step 30.
+
+
+------------------------------------------------------------
+30. FINAL SERVER ATTEMPT
+------------------------------------------------------------
+
+Run ALL of this:
+
+cd /d "YOUR WEBSITE FOLDER"
+
+py -m http.server 49152 --bind 127.0.0.1
+
+If CMD stays running and shows that it is serving HTTP:
+
+Open Edge:
+
+http://127.0.0.1:49152
+
+If that works:
+→ WEBSITE SERVER IS RUNNING.
+
+If CMD STILL IMMEDIATELY RETURNS to the prompt:
+→ The school computer's Python installation/environment is
+   the problem, not your website.
+
+============================================================
+EDGE TEST ORDER
+============================================================
+
+Whenever a server is successfully running, try these in order:
+
+1. http://127.0.0.1:8000
+2. http://localhost:8000
+3. http://127.0.0.1:8080
+4. http://localhost:8080
+5. http://127.0.0.1:8765
+6. http://localhost:8765
+7. http://127.0.0.1:8888
+8. http://localhost:8888
+
+Replace the port with whichever port your server is actually using.
+
+============================================================
+IMPORTANT
+============================================================
+
+DO NOT change:
+- Proxy settings
+- Proxy address
+- Proxy port
+- Random Windows network settings
+
+DO NOT close the CMD window while the server is running.
+
+The correct situation is:
+
+C:\YourWebsite> python -m http.server 8000
+
+Serving HTTP on ...
+
+[CMD stays open]
+
+Then open Edge separately:
+
+http://127.0.0.1:8000
+
+============================================================
+END
+============================================================

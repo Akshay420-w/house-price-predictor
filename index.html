@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 <html lang="en">
@@ -5,16 +6,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monotonic House Price Predictor</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <script src="https://cdn.tailwindcss.com"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+<!-- Local Tailwind CSS -->
+<script src="tailwind.js"></script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<!-- Local Lucide Icons -->
+<script src="lucide.min.js"></script>
 
-<script src="https://unpkg.com/lucide@latest"></script>
+<!-- Replace ort.min.js with ort.wasm.min.js -->
+<script src="ort.all.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
 <style>
     /* Premium Light + Soft Pastel Palette */
     body {
@@ -557,7 +558,34 @@
                     </div>
 
                 </div>
+<div class="relative overflow-hidden rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/60 via-purple-50/40 to-white p-6 transition-all duration-300 hover:border-indigo-200 hover:shadow-md space-y-4">
+    
+    <!-- Title Header -->
+    <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-100 bg-white shadow-sm text-indigo-500">
+            <i data-lucide="hard-drive" class="w-5 h-5"></i>
+        </div>
+        <div>
+            <h3 class="font-heading text-sm font-bold text-slate-800">Offline Machine Learning Setup</h3>
+            <p class="text-xs text-slate-500">Load required runtime files for local execution</p>
+        </div>
+    </div>
 
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-indigo-100/60">
+        
+
+        <!-- Step 2: ONNX Model Loader -->
+        <div class="flex flex-col items-center justify-between p-3 rounded-xl border border-indigo-100/80 bg-white/70 shadow-sm">
+            <span class="text-xs font-semibold text-slate-700 mb-2">2. ONNX Neural Model</span>
+            <label for="model-selector" class="w-full flex items-center justify-center gap-2 rounded-lg border border-indigo-200 bg-white px-3 py-2 text-xs font-semibold text-indigo-600 shadow-sm transition-all hover:bg-indigo-50 hover:border-indigo-300 active:scale-95 cursor-pointer">
+                <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                <span id="model-label-text">Load model.onnx</span>
+                <input type="file" id="model-selector" accept=".onnx" class="hidden" onchange="updateModelName(this)">
+            </label>
+        </div>
+    </div>
+
+</div>
                 <button type="submit" id="calculateBtn" class="btn-shimmer w-full py-4 px-6 text-white font-bold rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 active:scale-[0.99] cursor-pointer">
                     <i data-lucide="sparkles" class="w-5 h-5"></i>
                     <span class="tracking-wide">Calculate Estimate</span>
@@ -696,6 +724,19 @@ toast.addEventListener('animationend', () => {
     toast.remove();
 });
 
+}
+function updateWasmName(input) {
+    const labelText = document.getElementById('wasm-label-text');
+    if (input.files && input.files[0]) {
+        labelText.textContent = input.files[0].name;
+    }
+}
+
+function updateModelName(input) {
+    const labelText = document.getElementById('model-label-text');
+    if (input.files && input.files[0]) {
+        labelText.textContent = input.files[0].name;
+    }
 }
 </script>
 
